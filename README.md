@@ -1,6 +1,6 @@
 # Evaluating the Evaluation of Diversity in Natural Language Generation
 
-arxiv.org/abs/2004.02990
+[arxiv.org/abs/2004.02990](http://arxiv.org/abs/2004.02990)
 
 Our code and data are a platform for evaluating NLG diversity *metrics*.
 
