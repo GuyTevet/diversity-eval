@@ -9,7 +9,7 @@ DATA_DIR = 'data'
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw')
 METRICS_DATA_DIR = os.path.join(DATA_DIR, 'with_metrics')
 RESULTS_DIR = 'results'
-GLOBAL_RESULTS_DIR = os.path.join(RESULTS_DIR, 'globals')
+EXPERIMENTS_DIR = 'experiments'
 
 
 def dict_print(d, indent=0):
@@ -20,6 +20,26 @@ def dict_print(d, indent=0):
             dict_print(value, indent+1)
         else:
             print('\t' * (indent+1) + str(value))
+
+
+def parse_path_list(path_str, default_path, file_extension='.csv'):
+    csv_list = []
+    input_split = [default_path] if path_str == '' else path_str.split(',')
+
+    for path in input_split:
+        if os.path.isfile(path) and path.endswith(file_extension):
+            csv_list.append(path)
+        elif os.path.isdir(path):
+            for subdir, dirs, files in os.walk(path):
+                for file in files:
+                    sub_path = os.path.join(subdir, file)
+                    if os.path.isfile(sub_path) and sub_path.endswith(file_extension):
+                        csv_list.append(sub_path)
+        else:
+            raise FileNotFoundError('[{}] not exists.'.format(path))
+
+    return csv_list
+
 
 def CamleCase2snake_case(string):
     # code from https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
@@ -35,12 +55,14 @@ def represents_int(s):
     except ValueError:
         return False
 
+
 def lines_to_ngrams(lines, n=3):
     ngrams = []
     for s in lines:
         words = [e for e in s.replace('.','').replace('\n','').split(' ') if e != '']
         ngrams.append([tuple(words[i:i + n]) for i in range(len(words) - n + 1)])
     return ngrams
+
 
 def stringify_keys(d):
     """Convert a dict's keys to strings if they are not."""
@@ -66,6 +88,7 @@ def stringify_keys(d):
                     raise
 
     return d
+
 
 def download_and_place_data():
 

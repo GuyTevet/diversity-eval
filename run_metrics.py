@@ -9,6 +9,7 @@ from copy import deepcopy
 import utils
 import diversity_metrics
 
+
 def calc_metrics(params):
 
     # choose metrics and configurations
@@ -37,24 +38,13 @@ def calc_metrics(params):
     utils.dict_print(metrics_dict)
 
     # parse input csv path
-    csv_dict = {}
-    input_split = [utils.RAW_DATA_DIR] if params.input_csv == '' else params.input_csv.split(',')
-
-    for path in input_split:
-        if os.path.isfile(path) and path.endswith('.csv'):
-            csv_dict.update({path: {}})
-        elif os.path.isdir(path):
-            for subdir, dirs, files in os.walk(path):
-                for file in files:
-                    sub_path = os.path.join(subdir, file)
-                    if os.path.isfile(sub_path) and sub_path.endswith('.csv'):
-                        csv_dict.update({sub_path: {}})
-        else:
-            raise FileNotFoundError('[{}] not exists.'.format(path))
+    csv_dict = {path: {} for path in utils.parse_path_list(params.input_csv,
+                                                           default_path=utils.RAW_DATA_DIR,
+                                                           file_extension='.csv')}
 
     # validating files
     for path, param_dict in csv_dict.items():
-        with open(path, 'r') as input_csv_f:
+        with open(path, 'r+', encoding='utf-8') as input_csv_f:
             reader = csv.DictReader(input_csv_f)
             assert 'sample_id' in reader.fieldnames, '[{}] missing sample_id field'.format(path)
 
@@ -110,7 +100,7 @@ def calc_metrics(params):
                 os.makedirs(out_dir)
 
             # handle reader and writer
-            input_csv_f = open(path, 'r')
+            input_csv_f = open(path, 'r+', encoding='utf-8')
             # TODO - check if outfile exists
             output_csv_f = open(param_dict['out_path'], 'w')
             reader = csv.DictReader(input_csv_f)

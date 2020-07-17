@@ -106,7 +106,7 @@ class BertSts(metric.Similarity2DiversityFromFileMetric):
         # write input_tsv
         self.create_input_tsv()
 
-        sts_dir_path = '../bert-sts' # FIXME - hard coded
+        sts_dir_path = os.path.join('..', 'bert-sts') # FIXME - hard coded
         if not os.path.isdir(sts_dir_path):
             raise OSError('[{}] not found'.format(sts_dir_path))
 
