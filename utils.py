@@ -3,13 +3,18 @@ import requests
 import re
 from tqdm import tqdm
 import zipfile
+import numpy as np
 
 # consts
 DATA_DIR = 'data'
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw')
 METRICS_DATA_DIR = os.path.join(DATA_DIR, 'with_metrics')
 RESULTS_DIR = 'results'
-EXPERIMENTS_DIR = 'experiments'
+EXPERIMENTS_DIR = os.path.join(DATA_DIR, 'experiments')
+LABEL_VAL_FIELD = 'label_value'
+LABEL_NAME_FIELD = 'label_name'
+LABEL_PREFIX = 'label_'
+METRIC_FIELD_PREFIX = 'metric_'
 
 
 def dict_print(d, indent=0):
@@ -108,6 +113,30 @@ def download_and_place_data():
         with zipfile.ZipFile(target_zip, 'r') as zip_ref:
             zip_ref.extractall('.')
         os.remove(target_zip)
+
+
+def optimal_classification_accuracy(group_1, group_2):
+    """
+    find optimal classification accuracy in 1d feature space by exhaustively checking all separators.
+    :param group_1: list of 1d data points
+    :param group_2: list of 1d data points
+    :return: optimal classification accuracy (ocr), and classification threshold (th)
+    """
+    accuracy_list = []
+    th_list = []
+    all_samples = group_1 + group_2
+    for separator in all_samples:
+        group_1_left = sum([v <= separator + 1e-5 for v in group_1])
+        group_2_right = sum([v > separator + 1e-5 for v in group_2])
+        acc = (group_1_left + group_2_right) / len(all_samples)
+        th_list.append(separator)
+        accuracy_list.append(acc if acc > 0.5 else 1 - acc)
+
+    best_separator_idx = np.argmax(accuracy_list)
+    oca = accuracy_list[best_separator_idx]
+    th = th_list[best_separator_idx]
+
+    return oca, th
 
 
 if __name__ == '__main__':
