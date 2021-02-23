@@ -102,7 +102,7 @@ def calc_metrics(params):
             # handle reader and writer
             input_csv_f = open(path, 'r+', encoding='utf-8')
             # TODO - check if outfile exists
-            output_csv_f = open(param_dict['out_path'], 'w')
+            output_csv_f = open(param_dict['out_path'], 'w', encoding='utf-8')
             reader = csv.DictReader(input_csv_f)
             out_fields = reader.fieldnames + [metric_params['field_name']
                                               for metric_params in param_dict['metrics_to_calc'].values()]
